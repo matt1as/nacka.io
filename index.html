@@ -257,6 +257,16 @@
       white-space: nowrap;
     }
 
+    .post-link {
+      color: inherit;
+      text-decoration: none;
+    }
+
+    .post-link:hover {
+      color: rgba(120, 215, 255, .85);
+      text-decoration: none;
+    }
+
     /* Post Content */
     .post-content {
       font-size: 15px;
@@ -476,7 +486,9 @@
                 <div class="post-meta">
                   <span class="post-username mono">@${account.username}</span>
                   <span>•</span>
-                  <time datetime="${post.created_at}">${formatRelativeTime(post.created_at)}</time>
+                  <a href="${post.url}" target="_blank" rel="noopener noreferrer" class="post-link">
+                    <time datetime="${post.created_at}">${formatRelativeTime(post.created_at)}</time>
+                  </a>
                 </div>
               </div>
             </div>
