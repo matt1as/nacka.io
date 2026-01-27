@@ -40,6 +40,8 @@
       display: grid;
       place-items: center;
       padding: 48px 20px;
+      gap: 32px;
+      grid-auto-rows: auto;
     }
     .card {
       width: min(var(--max), 100%);
@@ -145,6 +147,240 @@
       flex-wrap: wrap;
     }
     .mono { font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono","Courier New", monospace; }
+
+    /* Feed Card Styles */
+    .feed-card {
+      width: min(var(--max), 100%);
+    }
+
+    /* Loading State */
+    .feed-loading {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: 48px 20px;
+      gap: 16px;
+    }
+
+    .loading-spinner {
+      width: 32px;
+      height: 32px;
+      border: 3px solid var(--hair);
+      border-top-color: rgba(120, 215, 255, .85);
+      border-radius: 50%;
+      animation: spin 1s linear infinite;
+    }
+
+    @keyframes spin {
+      to { transform: rotate(360deg); }
+    }
+
+    /* Error State */
+    .feed-error {
+      padding: 32px 20px;
+      text-align: center;
+      color: var(--muted);
+    }
+
+    .feed-error p {
+      margin: 0 0 16px;
+      max-width: none;
+    }
+
+    .feed-error a {
+      color: rgba(120, 215, 255, .85);
+    }
+
+    /* Posts Container */
+    #mastodon-feed {
+      display: flex;
+      flex-direction: column;
+      gap: 24px;
+    }
+
+    /* Individual Post */
+    .post {
+      padding-bottom: 24px;
+      border-bottom: 1px solid var(--hair);
+      position: relative;
+      cursor: pointer;
+      transition: background-color 0.2s ease;
+    }
+
+    .post:hover {
+      background-color: rgba(120, 215, 255, 0.03);
+      border-radius: 12px;
+      padding: 16px;
+      margin: -16px;
+      padding-bottom: 24px;
+    }
+
+    .post:last-child {
+      border-bottom: none;
+      padding-bottom: 0;
+    }
+
+    .post:last-child:hover {
+      padding-bottom: 16px;
+    }
+
+    /* Post Header */
+    .post-header {
+      display: flex;
+      align-items: flex-start;
+      gap: 12px;
+      margin-bottom: 12px;
+    }
+
+    .post-avatar {
+      width: 42px;
+      height: 42px;
+      border-radius: 8px;
+      object-fit: cover;
+      background: var(--hair);
+      flex-shrink: 0;
+    }
+
+    .post-info {
+      flex: 1;
+      min-width: 0;
+    }
+
+    .post-author {
+      font-weight: 600;
+      font-size: 15px;
+      color: var(--fg);
+      display: block;
+      margin-bottom: 2px;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+
+    .post-meta {
+      font-size: 13px;
+      color: var(--muted);
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .post-username {
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+
+    .post-link {
+      color: inherit;
+      text-decoration: none;
+    }
+
+    .post-link:hover {
+      color: rgba(120, 215, 255, .85);
+      text-decoration: none;
+    }
+
+    .post-link::after {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      z-index: 1;
+    }
+
+    /* Ensure content links are above the stretched link */
+    .post-content a {
+      position: relative;
+      z-index: 2;
+    }
+
+    /* Post Content */
+    .post-content {
+      font-size: 15px;
+      line-height: 1.55;
+      color: var(--fg);
+      word-wrap: break-word;
+      overflow-wrap: break-word;
+    }
+
+    .post-content p {
+      margin: 0 0 12px;
+      color: inherit;
+      max-width: none;
+    }
+
+    .post-content p:last-child {
+      margin-bottom: 0;
+    }
+
+    .post-content a {
+      color: rgba(120, 215, 255, .85);
+      text-decoration: none;
+    }
+
+    .post-content a:hover {
+      text-decoration: underline;
+      text-underline-offset: 2px;
+    }
+
+    .post-content .hashtag {
+      color: rgba(120, 215, 255, .85);
+    }
+
+    .post-content .mention {
+      color: rgba(120, 215, 255, .85);
+    }
+
+    /* Post Media */
+    .post-media {
+      margin-top: 14px;
+      border-radius: 12px;
+      overflow: hidden;
+      background: var(--hair);
+    }
+
+    .post-media img {
+      width: 100%;
+      height: auto;
+      display: block;
+      max-height: 500px;
+      object-fit: cover;
+    }
+
+    /* Feed Footer */
+    .feed-footer {
+      padding-top: 18px;
+      margin-top: 18px;
+      border-top: 1px solid var(--hair);
+      text-align: center;
+    }
+
+    .feed-footer a {
+      font-size: 14px;
+      color: rgba(120, 215, 255, .85);
+      padding: 8px 0;
+      display: inline-block;
+    }
+
+    /* Responsive */
+    @media (max-width: 640px) {
+      .post-avatar {
+        width: 38px;
+        height: 38px;
+      }
+
+      .post-author {
+        font-size: 14px;
+      }
+
+      .post-content {
+        font-size: 14px;
+      }
+    }
   </style>
 </head>
 
@@ -181,10 +417,176 @@
         </div>
       </div>
     </main>
+
+    <aside class="card feed-card" aria-label="Recent posts from social.nacka.io">
+      <div class="content">
+        <div class="topline">
+          <div class="mark">
+            <span class="dot" aria-hidden="true"></span>
+            <span class="mono">social.nacka.io</span>
+          </div>
+          <div class="meta mono">mastodon feed</div>
+        </div>
+
+        <div id="mastodon-feed">
+          <div class="feed-loading">
+            <div class="loading-spinner"></div>
+            <p class="meta">Loading recent posts...</p>
+          </div>
+        </div>
+      </div>
+    </aside>
   </div>
 
   <script>
     document.getElementById("y").textContent = new Date().getFullYear();
+
+    // Mastodon Feed Integration
+    (function() {
+      const API_URL = 'https://social.nacka.io/api/v1/timelines/public';
+      const PARAMS = '?limit=7&local=true';
+      const feedContainer = document.getElementById('mastodon-feed');
+
+      // Format relative time (e.g., "2h ago", "3d ago")
+      function formatRelativeTime(dateString) {
+        const now = new Date();
+        const then = new Date(dateString);
+        const diffMs = now - then;
+        const diffSec = Math.floor(diffMs / 1000);
+        const diffMin = Math.floor(diffSec / 60);
+        const diffHr = Math.floor(diffMin / 60);
+        const diffDay = Math.floor(diffHr / 24);
+
+        if (diffDay > 0) return diffDay + 'd ago';
+        if (diffHr > 0) return diffHr + 'h ago';
+        if (diffMin > 0) return diffMin + 'm ago';
+        return 'just now';
+      }
+
+      // Sanitize HTML content for security
+      function sanitizeContent(html) {
+        const temp = document.createElement('div');
+        temp.innerHTML = html;
+
+        // Remove dangerous elements
+        const dangerous = temp.querySelectorAll('script, iframe, object, embed');
+        dangerous.forEach(el => el.remove());
+
+        // Ensure all links open in new tab and are safe
+        const links = temp.querySelectorAll('a');
+        links.forEach(link => {
+          link.setAttribute('target', '_blank');
+          link.setAttribute('rel', 'noopener noreferrer');
+        });
+
+        return temp.innerHTML;
+      }
+
+      // Render media attachments
+      function renderMedia(attachments) {
+        if (!attachments || attachments.length === 0) return '';
+
+        const image = attachments.find(att => att.type === 'image');
+        if (!image) return '';
+
+        return `
+          <div class="post-media">
+            <img src="${image.url}"
+                 alt="${image.description || 'Post image'}"
+                 loading="lazy"
+                 onerror="this.parentElement.style.display='none'">
+          </div>
+        `;
+      }
+
+      // Render individual post
+      function renderPost(post) {
+        const account = post.account;
+        const avatar = account.avatar || 'data:image/svg+xml,%3Csvg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"%3E%3Crect fill="%23333" width="100" height="100"/%3E%3C/svg%3E';
+
+        return `
+          <article class="post">
+            <div class="post-header">
+              <img class="post-avatar"
+                   src="${avatar}"
+                   alt="${account.display_name || account.username}'s avatar"
+                   loading="lazy"
+                   onerror="this.src='data:image/svg+xml,%3Csvg xmlns=\\'http://www.w3.org/2000/svg\\' viewBox=\\'0 0 100 100\\'%3E%3Crect fill=\\'%23333\\' width=\\'100\\' height=\\'100\\'/%3E%3C/svg%3E'">
+              <div class="post-info">
+                <span class="post-author">${account.display_name || account.username}</span>
+                <div class="post-meta">
+                  <span class="post-username mono">@${account.username}</span>
+                  <span>•</span>
+                  <a href="${post.url}" target="_blank" rel="noopener noreferrer" class="post-link">
+                    <time datetime="${post.created_at}">${formatRelativeTime(post.created_at)}</time>
+                  </a>
+                </div>
+              </div>
+            </div>
+            <div class="post-content">
+              ${sanitizeContent(post.content)}
+            </div>
+            ${renderMedia(post.media_attachments)}
+          </article>
+        `;
+      }
+
+      // Show error message
+      function showError(message) {
+        feedContainer.innerHTML = `
+          <div class="feed-error">
+            <p>${message}</p>
+            <a href="https://social.nacka.io" target="_blank" rel="noopener noreferrer">
+              Visit social.nacka.io →
+            </a>
+          </div>
+        `;
+      }
+
+      // Load and display feed
+      async function loadFeed() {
+        try {
+          const response = await fetch(API_URL + PARAMS);
+
+          if (!response.ok) {
+            throw new Error(`API returned ${response.status}`);
+          }
+
+          const posts = await response.json();
+
+          if (!Array.isArray(posts) || posts.length === 0) {
+            showError('No posts available at the moment.');
+            return;
+          }
+
+          // Filter out replies for cleaner feed
+          const topLevelPosts = posts.filter(post => !post.in_reply_to_id);
+
+          if (topLevelPosts.length === 0) {
+            showError('No posts available at the moment.');
+            return;
+          }
+
+          // Render posts
+          const postsHtml = topLevelPosts.map(post => renderPost(post)).join('');
+
+          feedContainer.innerHTML = `
+            ${postsHtml}
+            <div class="feed-footer">
+              <a href="https://social.nacka.io" target="_blank" rel="noopener noreferrer">
+                View more on social.nacka.io →
+              </a>
+            </div>
+          `;
+        } catch (error) {
+          console.error('Failed to load Mastodon feed:', error);
+          showError('Unable to load posts right now. Please try again later.');
+        }
+      }
+
+      // Initialize feed on page load
+      loadFeed();
+    })();
   </script>
 </body>
 </html>
