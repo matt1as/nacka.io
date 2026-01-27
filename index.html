@@ -625,8 +625,9 @@
 
     // SAP Community Feed Integration
     (function() {
-      const API_URL = 'https://community.sap.com/api/2.0/search';
+      const SAP_API = 'https://community.sap.com/api/2.0/search';
       const QUERY = "?q=select id, view_href, author.login, subject, post_time, teaser from messages where author.login='Mattias' and conversation.style='blog' order by post_time desc LIMIT 5";
+      const API_URL = 'https://corsproxy.io/?' + encodeURIComponent(SAP_API + QUERY);
       const feedContainer = document.getElementById('sap-feed');
 
       // Format relative time (e.g., "2h ago", "3d ago")
@@ -694,7 +695,7 @@
       // Load and display feed
       async function loadFeed() {
         try {
-          const response = await fetch(API_URL + QUERY);
+          const response = await fetch(API_URL);
 
           if (!response.ok) {
             throw new Error(`API returned ${response.status}`);
