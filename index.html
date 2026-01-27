@@ -211,27 +211,37 @@
 
     /* Individual Post */
     .post {
-      padding-bottom: 24px;
+      padding: 16px;
+      margin: -16px;
+      padding-bottom: calc(24px + 16px);
+      margin-bottom: -16px;
       border-bottom: 1px solid var(--hair);
       position: relative;
       cursor: pointer;
-      transition: background-color 0.2s ease;
     }
 
-    .post:hover {
-      background-color: rgba(120, 215, 255, 0.03);
+    .post::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background-color: rgba(120, 215, 255, 0);
       border-radius: 12px;
-      padding: 16px;
-      margin: -16px;
-      padding-bottom: 24px;
+      transition: background-color 0.2s ease;
+      pointer-events: none;
+      z-index: 0;
+    }
+
+    .post:hover::before {
+      background-color: rgba(120, 215, 255, 0.03);
+    }
+
+    .post > * {
+      position: relative;
+      z-index: 1;
     }
 
     .post:last-child {
       border-bottom: none;
-      padding-bottom: 0;
-    }
-
-    .post:last-child:hover {
       padding-bottom: 16px;
     }
 
