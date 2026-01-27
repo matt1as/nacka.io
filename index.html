@@ -443,10 +443,140 @@
         font-size: 14px;
       }
     }
+
+    /* 90s Easter Egg Theme */
+    body.retro-mode {
+      background: #00ffff url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20"><rect width="10" height="10" fill="%23ff00ff"/><rect x="10" y="10" width="10" height="10" fill="%23ff00ff"/></svg>') !important;
+      font-family: "Comic Sans MS", "Chalkboard SE", "Comic Neue", cursive !important;
+      animation: rainbow-bg 5s linear infinite;
+    }
+
+    @keyframes rainbow-bg {
+      0% { background-color: #ff0000; }
+      16% { background-color: #ff7f00; }
+      33% { background-color: #ffff00; }
+      50% { background-color: #00ff00; }
+      66% { background-color: #0000ff; }
+      83% { background-color: #8b00ff; }
+      100% { background-color: #ff0000; }
+    }
+
+    body.retro-mode * {
+      font-family: "Comic Sans MS", "Chalkboard SE", "Comic Neue", cursive !important;
+    }
+
+    body.retro-mode .card {
+      background: linear-gradient(45deg, #ff69b4, #ffff00, #00ffff, #ff69b4) !important;
+      border: 5px ridge #ff00ff !important;
+      box-shadow: 10px 10px 0px #000 !important;
+      animation: blink-border 1s infinite;
+    }
+
+    @keyframes blink-border {
+      0%, 100% { border-color: #ff00ff; }
+      50% { border-color: #00ffff; }
+    }
+
+    body.retro-mode h1 {
+      color: #ff0000 !important;
+      text-shadow: 3px 3px #00ff00, 6px 6px #0000ff !important;
+      animation: rainbow-text 3s linear infinite;
+    }
+
+    @keyframes rainbow-text {
+      0% { color: #ff0000; }
+      16% { color: #ff7f00; }
+      33% { color: #ffff00; }
+      50% { color: #00ff00; }
+      66% { color: #0000ff; }
+      83% { color: #8b00ff; }
+      100% { color: #ff0000; }
+    }
+
+    body.retro-mode p,
+    body.retro-mode .meta,
+    body.retro-mode .post-content {
+      color: #000000 !important;
+      text-shadow: 1px 1px #ffffff !important;
+    }
+
+    body.retro-mode .pill {
+      background: linear-gradient(#ffff00, #ff00ff) !important;
+      border: 3px outset #ffffff !important;
+      color: #000000 !important;
+      font-weight: bold !important;
+    }
+
+    body.retro-mode .dot {
+      background: #ff0000 !important;
+      animation: blink-dot 0.5s infinite !important;
+    }
+
+    @keyframes blink-dot {
+      0%, 100% { opacity: 1; }
+      50% { opacity: 0; }
+    }
+
+    body.retro-mode .post {
+      background: rgba(255, 255, 255, 0.8) !important;
+      border: 2px dashed #ff00ff !important;
+    }
+
+    body.retro-mode .footer {
+      color: #000000 !important;
+      font-weight: bold !important;
+    }
+
+    body.retro-mode a {
+      color: #0000ff !important;
+      text-decoration: underline !important;
+    }
+
+    body.retro-mode a:hover {
+      color: #ff00ff !important;
+    }
+
+    .retro-banner {
+      display: none;
+      text-align: center;
+      padding: 10px;
+      background: linear-gradient(90deg, #ff0000, #ffff00, #00ff00, #00ffff, #0000ff, #ff00ff, #ff0000);
+      font-weight: bold;
+      font-size: 20px;
+      color: #ffffff;
+      text-shadow: 2px 2px #000000;
+      animation: marquee-scroll 10s linear infinite;
+    }
+
+    body.retro-mode .retro-banner {
+      display: block;
+    }
+
+    @keyframes marquee-scroll {
+      0% { transform: translateX(100%); }
+      100% { transform: translateX(-100%); }
+    }
+
+    .retro-counter {
+      display: none;
+      text-align: center;
+      margin-top: 20px;
+      font-family: "Courier New", monospace;
+      font-size: 14px;
+      color: #000000;
+      font-weight: bold;
+    }
+
+    body.retro-mode .retro-counter {
+      display: block;
+    }
   </style>
 </head>
 
 <body>
+  <div class="retro-banner">
+    🌟 WELCOME TO THE WORLD WIDE WEB 🌟 Best viewed in Netscape Navigator 🌟 Under Construction 🚧
+  </div>
   <div class="wrap">
     <main class="card" aria-label="nacka.io landing page">
       <div class="content">
@@ -474,8 +604,11 @@
 
         
         <div class="footer">
-          <span class="mono">© <span id="y"></span> nacka.io</span>
+          <span class="mono">© <span id="y" style="cursor: pointer;" title="Click me 5 times..."></span> nacka.io</span>
           <span class="mono">status: <span style="color: rgba(120, 215, 255, .85);">live</span></span>
+        </div>
+        <div class="retro-counter">
+          👾 You are visitor #<span id="visitor-count">001337</span> 👾
         </div>
       </div>
     </main>
@@ -521,6 +654,46 @@
 
   <script>
     document.getElementById("y").textContent = new Date().getFullYear();
+
+    // 90s Easter Egg
+    (function() {
+      let clickCount = 0;
+      let clickTimer = null;
+      const yearElement = document.getElementById("y");
+
+      // Check if retro mode is saved
+      if (localStorage.getItem('retroMode') === 'true') {
+        document.body.classList.add('retro-mode');
+      }
+
+      yearElement.addEventListener('click', function() {
+        clickCount++;
+
+        // Reset counter after 2 seconds of no clicks
+        clearTimeout(clickTimer);
+        clickTimer = setTimeout(() => {
+          clickCount = 0;
+        }, 2000);
+
+        // Toggle retro mode after 5 clicks
+        if (clickCount >= 5) {
+          const isRetro = document.body.classList.toggle('retro-mode');
+          localStorage.setItem('retroMode', isRetro);
+          clickCount = 0;
+
+          // Play with visitor counter
+          if (isRetro) {
+            const counter = document.getElementById('visitor-count');
+            let count = 1337;
+            const interval = setInterval(() => {
+              count += Math.floor(Math.random() * 10) + 1;
+              counter.textContent = String(count).padStart(6, '0');
+            }, 100);
+            setTimeout(() => clearInterval(interval), 3000);
+          }
+        }
+      });
+    })();
 
     // Mastodon Feed Integration
     (function() {
