@@ -366,6 +366,22 @@
       display: inline-block;
     }
 
+    /* SAP Community specific styles */
+    .sap-post .post-header {
+      margin-bottom: 8px;
+    }
+
+    .sap-post .post-author {
+      font-size: 16px;
+      line-height: 1.4;
+      white-space: normal;
+    }
+
+    .sap-post .post-content {
+      color: var(--muted);
+      margin-top: 8px;
+    }
+
     /* Responsive */
     @media (max-width: 640px) {
       .post-avatar {
@@ -429,6 +445,25 @@
         </div>
 
         <div id="mastodon-feed">
+          <div class="feed-loading">
+            <div class="loading-spinner"></div>
+            <p class="meta">Loading recent posts...</p>
+          </div>
+        </div>
+      </div>
+    </aside>
+
+    <aside class="card feed-card" aria-label="Recent blog posts from SAP Community">
+      <div class="content">
+        <div class="topline">
+          <div class="mark">
+            <span class="dot" aria-hidden="true"></span>
+            <span class="mono">community.sap.com</span>
+          </div>
+          <div class="meta mono">blog posts</div>
+        </div>
+
+        <div id="sap-feed">
           <div class="feed-loading">
             <div class="loading-spinner"></div>
             <p class="meta">Loading recent posts...</p>
@@ -581,6 +616,113 @@
         } catch (error) {
           console.error('Failed to load Mastodon feed:', error);
           showError('Unable to load posts right now. Please try again later.');
+        }
+      }
+
+      // Initialize feed on page load
+      loadFeed();
+    })();
+
+    // SAP Community Feed Integration
+    (function() {
+      const SAP_API = 'https://community.sap.com/api/2.0/search';
+      const QUERY = "?q=select id, view_href, author.login, subject, post_time, teaser from messages where author.login='Mattias' and conversation.style='blog' order by post_time desc LIMIT 5";
+      const API_URL = 'https://corsproxy.io/?' + encodeURIComponent(SAP_API + QUERY);
+      const feedContainer = document.getElementById('sap-feed');
+
+      // Format relative time (e.g., "2h ago", "3d ago")
+      function formatRelativeTime(dateString) {
+        const now = new Date();
+        const then = new Date(dateString);
+        const diffMs = now - then;
+        const diffSec = Math.floor(diffMs / 1000);
+        const diffMin = Math.floor(diffSec / 60);
+        const diffHr = Math.floor(diffMin / 60);
+        const diffDay = Math.floor(diffHr / 24);
+
+        if (diffDay > 0) return diffDay + 'd ago';
+        if (diffHr > 0) return diffHr + 'h ago';
+        if (diffMin > 0) return diffMin + 'm ago';
+        return 'just now';
+      }
+
+      // Strip HTML tags and decode entities for plain text preview
+      function stripHtml(html) {
+        if (!html) return '';
+        const temp = document.createElement('div');
+        temp.innerHTML = html;
+        return temp.textContent || temp.innerText || '';
+      }
+
+      // Render individual blog post
+      function renderPost(post) {
+        const postUrl = post.view_href || '#';
+        const subject = post.subject || 'Untitled Post';
+        const teaser = stripHtml(post.teaser);
+        const teaserPreview = teaser ? (teaser.length > 150 ? teaser.substring(0, 150) + '...' : teaser) : '';
+
+        return `
+          <article class="post sap-post">
+            <div class="post-header">
+              <div class="post-info" style="flex: 1;">
+                <span class="post-author">${subject}</span>
+                <div class="post-meta">
+                  <span class="post-username mono">@${post.author.login}</span>
+                  <span>•</span>
+                  <a href="${postUrl}" target="_blank" rel="noopener noreferrer" class="post-link">
+                    <time datetime="${post.post_time}">${formatRelativeTime(post.post_time)}</time>
+                  </a>
+                </div>
+              </div>
+            </div>
+            ${teaserPreview ? `<div class="post-content"><p>${teaserPreview}</p></div>` : ''}
+          </article>
+        `;
+      }
+
+      // Show error message
+      function showError(message) {
+        feedContainer.innerHTML = `
+          <div class="feed-error">
+            <p>${message}</p>
+            <a href="https://community.sap.com/t5/user/viewprofilepage/user-id/216" target="_blank" rel="noopener noreferrer">
+              Visit SAP Community →
+            </a>
+          </div>
+        `;
+      }
+
+      // Load and display feed
+      async function loadFeed() {
+        try {
+          const response = await fetch(API_URL);
+
+          if (!response.ok) {
+            throw new Error(`API returned ${response.status}`);
+          }
+
+          const result = await response.json();
+          const posts = result?.data?.items || [];
+
+          if (posts.length === 0) {
+            showError('No blog posts available at the moment.');
+            return;
+          }
+
+          // Render posts
+          const postsHtml = posts.map(post => renderPost(post)).join('');
+
+          feedContainer.innerHTML = `
+            ${postsHtml}
+            <div class="feed-footer">
+              <a href="https://community.sap.com/t5/user/viewprofilepage/user-id/216" target="_blank" rel="noopener noreferrer">
+                View more on SAP Community →
+              </a>
+            </div>
+          `;
+        } catch (error) {
+          console.error('Failed to load SAP Community feed:', error);
+          showError('Unable to load blog posts right now. Please try again later.');
         }
       }
 
