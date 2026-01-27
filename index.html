@@ -553,21 +553,9 @@
         return temp.innerHTML;
       }
 
-      // Render media attachments
+      // Render media attachments (disabled for minimal aesthetic)
       function renderMedia(attachments) {
-        if (!attachments || attachments.length === 0) return '';
-
-        const image = attachments.find(att => att.type === 'image');
-        if (!image) return '';
-
-        return `
-          <div class="post-media">
-            <img src="${image.url}"
-                 alt="${image.description || 'Post image'}"
-                 loading="lazy"
-                 onerror="this.parentElement.style.display='none'">
-          </div>
-        `;
+        return '';
       }
 
       // Render individual post
