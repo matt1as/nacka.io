@@ -650,6 +650,25 @@
         </div>
       </div>
     </aside>
+
+    <aside class="card feed-card" aria-label="Recent blog posts from blog.nacka.io">
+      <div class="content">
+        <div class="topline">
+          <div class="mark">
+            <span class="dot" aria-hidden="true"></span>
+            <span class="mono">blog.nacka.io</span>
+          </div>
+          <div class="meta mono">long-form writing</div>
+        </div>
+
+        <div id="writefreely-feed">
+          <div class="feed-loading">
+            <div class="loading-spinner"></div>
+            <p class="meta">Loading recent posts...</p>
+          </div>
+        </div>
+      </div>
+    </aside>
   </div>
 
   <script>
@@ -930,6 +949,124 @@
         } catch (error) {
           console.error('Failed to load SAP Community feed:', error);
           showError('Unable to load blog posts right now. Please try again later.');
+        }
+      }
+
+      // Initialize feed on page load
+      loadFeed();
+    })();
+
+    // WriteFreely Blog Feed Integration
+    (function() {
+      // TODO: Update 'mattias' with your actual WriteFreely collection username
+      const BLOG_USERNAME = 'mattias';
+      const RSS_URL = `https://blog.nacka.io/api/collections/${BLOG_USERNAME}/feed`;
+      const feedContainer = document.getElementById('writefreely-feed');
+
+      // Format relative time (e.g., "2h ago", "3d ago")
+      function formatRelativeTime(dateString) {
+        const now = new Date();
+        const then = new Date(dateString);
+        const diffMs = now - then;
+        const diffSec = Math.floor(diffMs / 1000);
+        const diffMin = Math.floor(diffSec / 60);
+        const diffHr = Math.floor(diffMin / 60);
+        const diffDay = Math.floor(diffHr / 24);
+
+        if (diffDay > 0) return diffDay + 'd ago';
+        if (diffHr > 0) return diffHr + 'h ago';
+        if (diffMin > 0) return diffMin + 'm ago';
+        return 'just now';
+      }
+
+      // Strip HTML tags for plain text preview
+      function stripHtml(html) {
+        if (!html) return '';
+        const temp = document.createElement('div');
+        temp.innerHTML = html;
+        return temp.textContent || temp.innerText || '';
+      }
+
+      // Render individual blog post
+      function renderPost(item) {
+        const title = item.querySelector('title')?.textContent || 'Untitled Post';
+        const link = item.querySelector('link')?.textContent || '#';
+        const pubDate = item.querySelector('pubDate')?.textContent || new Date().toISOString();
+        const description = item.querySelector('description')?.textContent || '';
+        const plainDescription = stripHtml(description);
+        const preview = plainDescription.length > 200 ? plainDescription.substring(0, 200) + '...' : plainDescription;
+
+        return `
+          <article class="post sap-post">
+            <div class="post-header">
+              <div class="post-info" style="flex: 1;">
+                <span class="post-author">${title}</span>
+                <div class="post-meta">
+                  <span class="post-username mono">@${BLOG_USERNAME}</span>
+                  <span>•</span>
+                  <a href="${link}" target="_blank" rel="noopener noreferrer" class="post-link">
+                    <time datetime="${pubDate}">${formatRelativeTime(pubDate)}</time>
+                  </a>
+                </div>
+              </div>
+            </div>
+            ${preview ? `<div class="post-content"><p>${preview}</p></div>` : ''}
+          </article>
+        `;
+      }
+
+      // Show error message
+      function showError(message) {
+        feedContainer.innerHTML = `
+          <div class="feed-error">
+            <p>${message}</p>
+            <a href="https://blog.nacka.io/${BLOG_USERNAME}" target="_blank" rel="noopener noreferrer" title="Opens in new tab">
+              Visit blog.nacka.io ↗
+            </a>
+          </div>
+        `;
+      }
+
+      // Load and display feed
+      async function loadFeed() {
+        try {
+          const response = await fetch(RSS_URL);
+
+          if (!response.ok) {
+            throw new Error(`API returned ${response.status}`);
+          }
+
+          const xmlText = await response.text();
+          const parser = new DOMParser();
+          const xml = parser.parseFromString(xmlText, 'text/xml');
+
+          // Check for parsing errors
+          const parseError = xml.querySelector('parsererror');
+          if (parseError) {
+            throw new Error('Failed to parse RSS feed');
+          }
+
+          const items = Array.from(xml.querySelectorAll('item')).slice(0, 5);
+
+          if (items.length === 0) {
+            showError('No blog posts yet. Stay tuned!');
+            return;
+          }
+
+          // Render posts
+          const postsHtml = items.map(item => renderPost(item)).join('');
+
+          feedContainer.innerHTML = `
+            ${postsHtml}
+            <div class="feed-footer">
+              <a href="https://blog.nacka.io/${BLOG_USERNAME}" target="_blank" rel="noopener noreferrer" title="Opens in new tab">
+                View all posts on blog.nacka.io ↗
+              </a>
+            </div>
+          `;
+        } catch (error) {
+          console.error('Failed to load WriteFreely feed:', error);
+          showError('No blog posts yet. Stay tuned!');
         }
       }
 
