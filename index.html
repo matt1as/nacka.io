@@ -122,6 +122,12 @@
       font-size: 13px;
       color: var(--muted);
       background: rgba(0,0,0,.12);
+      transition: all 0.2s ease;
+    }
+    .pill:hover {
+      background: rgba(120, 215, 255, 0.08);
+      border-color: rgba(120, 215, 255, 0.3);
+      color: var(--fg);
     }
     .links {
       display: flex;
@@ -136,6 +142,10 @@
       font-size: 14px;
       color: rgba(232,238,246,.82);
       padding: 6px 0;
+      transition: color 0.2s ease;
+    }
+    .links a:hover {
+      color: rgba(120, 215, 255, .85);
     }
     .footer {
       margin-top: 26px;
@@ -201,27 +211,37 @@
 
     /* Individual Post */
     .post {
-      padding-bottom: 24px;
+      padding: 16px;
+      margin: -16px;
+      padding-bottom: calc(24px + 16px);
+      margin-bottom: -16px;
       border-bottom: 1px solid var(--hair);
       position: relative;
       cursor: pointer;
-      transition: background-color 0.2s ease;
     }
 
-    .post:hover {
-      background-color: rgba(120, 215, 255, 0.03);
+    .post::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background-color: rgba(120, 215, 255, 0);
       border-radius: 12px;
-      padding: 16px;
-      margin: -16px;
-      padding-bottom: 24px;
+      transition: background-color 0.2s ease;
+      pointer-events: none;
+      z-index: 0;
+    }
+
+    .post:hover::before {
+      background-color: rgba(120, 215, 255, 0.03);
+    }
+
+    .post > * {
+      position: relative;
+      z-index: 1;
     }
 
     .post:last-child {
       border-bottom: none;
-      padding-bottom: 0;
-    }
-
-    .post:last-child:hover {
       padding-bottom: 16px;
     }
 
@@ -240,6 +260,12 @@
       object-fit: cover;
       background: var(--hair);
       flex-shrink: 0;
+      transition: transform 0.2s ease, box-shadow 0.2s ease;
+    }
+
+    .post-avatar:hover {
+      transform: scale(1.05);
+      box-shadow: 0 4px 12px rgba(120, 215, 255, 0.15);
     }
 
     .post-info {
@@ -305,6 +331,8 @@
       color: var(--fg);
       word-wrap: break-word;
       overflow-wrap: break-word;
+      hyphens: auto;
+      word-break: break-word;
     }
 
     .post-content p {
@@ -341,6 +369,12 @@
       border-radius: 12px;
       overflow: hidden;
       background: var(--hair);
+      border: 1px solid var(--hair);
+      transition: border-color 0.2s ease;
+    }
+
+    .post-media:hover {
+      border-color: rgba(120, 215, 255, 0.2);
     }
 
     .post-media img {
@@ -349,6 +383,11 @@
       display: block;
       max-height: 500px;
       object-fit: cover;
+      transition: transform 0.3s ease;
+    }
+
+    .post-media:hover img {
+      transform: scale(1.02);
     }
 
     /* Feed Footer */
@@ -364,6 +403,13 @@
       color: rgba(120, 215, 255, .85);
       padding: 8px 0;
       display: inline-block;
+      transition: all 0.2s ease;
+    }
+
+    .feed-footer a:hover {
+      color: rgba(120, 215, 255, 1);
+      text-decoration: underline;
+      transform: translateX(4px);
     }
 
     /* SAP Community specific styles */
@@ -517,21 +563,9 @@
         return temp.innerHTML;
       }
 
-      // Render media attachments
+      // Render media attachments (disabled for minimal aesthetic)
       function renderMedia(attachments) {
-        if (!attachments || attachments.length === 0) return '';
-
-        const image = attachments.find(att => att.type === 'image');
-        if (!image) return '';
-
-        return `
-          <div class="post-media">
-            <img src="${image.url}"
-                 alt="${image.description || 'Post image'}"
-                 loading="lazy"
-                 onerror="this.parentElement.style.display='none'">
-          </div>
-        `;
+        return '';
       }
 
       // Render individual post
@@ -571,8 +605,8 @@
         feedContainer.innerHTML = `
           <div class="feed-error">
             <p>${message}</p>
-            <a href="https://social.nacka.io" target="_blank" rel="noopener noreferrer">
-              Visit social.nacka.io →
+            <a href="https://social.nacka.io" target="_blank" rel="noopener noreferrer" title="Opens in new tab">
+              Visit social.nacka.io ↗
             </a>
           </div>
         `;
@@ -608,8 +642,8 @@
           feedContainer.innerHTML = `
             ${postsHtml}
             <div class="feed-footer">
-              <a href="https://social.nacka.io" target="_blank" rel="noopener noreferrer">
-                View more on social.nacka.io →
+              <a href="https://social.nacka.io" target="_blank" rel="noopener noreferrer" title="Opens in new tab">
+                View all posts on social.nacka.io ↗
               </a>
             </div>
           `;
@@ -685,8 +719,8 @@
         feedContainer.innerHTML = `
           <div class="feed-error">
             <p>${message}</p>
-            <a href="https://community.sap.com/t5/user/viewprofilepage/user-id/216" target="_blank" rel="noopener noreferrer">
-              Visit SAP Community →
+            <a href="https://community.sap.com/t5/user/viewprofilepage/user-id/216" target="_blank" rel="noopener noreferrer" title="Opens in new tab">
+              Visit SAP Community ↗
             </a>
           </div>
         `;
@@ -715,8 +749,8 @@
           feedContainer.innerHTML = `
             ${postsHtml}
             <div class="feed-footer">
-              <a href="https://community.sap.com/t5/user/viewprofilepage/user-id/216" target="_blank" rel="noopener noreferrer">
-                View more on SAP Community →
+              <a href="https://community.sap.com/t5/user/viewprofilepage/user-id/216" target="_blank" rel="noopener noreferrer" title="Opens in new tab">
+                View all posts on SAP Community ↗
               </a>
             </div>
           `;
