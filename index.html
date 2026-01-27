@@ -156,6 +156,12 @@
       gap: 14px;
       flex-wrap: wrap;
     }
+    #live-badge:hover {
+      color: rgba(120, 215, 255, 1) !important;
+      text-shadow: 0 0 10px rgba(120, 215, 255, .5);
+      transform: scale(1.1);
+      display: inline-block;
+    }
     .mono { font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono","Courier New", monospace; }
 
     /* Feed Card Styles */
@@ -605,7 +611,7 @@
         
         <div class="footer">
           <span class="mono">© <span id="y" style="cursor: pointer;" title="Click me 5 times..."></span> nacka.io</span>
-          <span class="mono">status: <span style="color: rgba(120, 215, 255, .85);">live</span></span>
+          <span class="mono">status: <span id="live-badge" style="color: rgba(120, 215, 255, .85); cursor: pointer; transition: all 0.2s ease;" title="Click to share on Mastodon">live</span></span>
         </div>
         <div class="retro-counter">
           👾 You are visitor #<span id="visitor-count">001337</span> 👾
@@ -692,6 +698,29 @@
             setTimeout(() => clearInterval(interval), 3000);
           }
         }
+      });
+    })();
+
+    // Mastodon Share Easter Egg
+    (function() {
+      const liveBadge = document.getElementById('live-badge');
+
+      liveBadge.addEventListener('click', function() {
+        // Pre-filled Mastodon post text
+        const shareText = "Just discovered this minimal digital home – a quiet space pulling together social thoughts and technical writing in one place. 🏠✨\n\nnacka.io";
+
+        // Encode the text for URL
+        const encodedText = encodeURIComponent(shareText);
+
+        // Open Mastodon compose window
+        const mastodonUrl = `https://social.nacka.io/share?text=${encodedText}`;
+        window.open(mastodonUrl, '_blank', 'noopener,noreferrer');
+
+        // Optional: Add a subtle visual feedback
+        liveBadge.style.transform = 'scale(0.9)';
+        setTimeout(() => {
+          liveBadge.style.transform = '';
+        }, 200);
       });
     })();
 
